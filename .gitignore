@@ -1,0 +1,18 @@
+.DS_Store
+build/
+
+# Android : sorties de build, binaires et clés de signature (jamais versionnées)
+android/build*/
+android/assets*/
+android/*.apk
+android/*.aab
+android/*.idsig
+android/*.jks
+android/*.keystore
+android/*-key.txt
+android/*-pass.txt
+android/bundletool.jar
+
+# fichiers générés par build.py (seule la version complète est gardée, jouable directement)
+dist/artifact.html
+dist/paddock26-essai.html

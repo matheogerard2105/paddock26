@@ -1,0 +1,12 @@
+const fs=require('fs');
+const src=fs.readFileSync(__dirname+'/../src/circuits.js','utf8')+fs.readFileSync(__dirname+'/../src/teams.js','utf8')+';module.exports={CIRCUITS,TEAMS_BASE};';
+const m={exports:{}}; new Function('module',src)(m);
+const {CIRCUITS,TEAMS_BASE}=m.exports; const SIM=require('../src/sim.js');
+const [id,laps='3',maxc='2']=process.argv.slice(2);
+const T=SIM.buildTrack(CIRCUITS.find(x=>x.id===id));
+const entries=TEAMS_BASE.flatMap(t=>t.drivers.map(d=>({team:t,driver:d})));
+const q=SIM.qualifying(T,entries);
+const R=SIM.createRace(T,q.map(r=>r.entry),{laps:+laps}); R.trace=true; let n=0;
+R.onContact=(A,B,ds,dd)=>{ const sv=Math.abs(A.v-B.v)+Math.abs(A.vd-B.vd); if(sv<5||n++>=+maxc) return; console.log('=== CONTACT',A.code,B.code,'t',R.t.toFixed(2),'ds',ds.toFixed(2),'dd',dd.toFixed(2),'flag',R.flag);
+ for(const c of [A,B]){ console.log('--',c.code,'[t,s,d,vd,tgtD,kmh,mode,brk,ratio,side]'); for(const r of (c.tr||[]).slice(-40).filter((_,i)=>i%3==0)) console.log('   ',r.join(' | ')); } };
+while(!R.over && R.t<+laps*200) SIM.step(R,1/60);
